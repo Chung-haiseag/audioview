@@ -1,23 +1,14 @@
-name: Deploy AudioView to GitHub Pages
+name: Deploy AudioView
 
 on:
-  # main 브랜치에 코드가 푸시될 때마다 실행
   push:
     branches: ["main"]
-
-  # 필요시 Actions 탭에서 수동으로 배포 실행 가능
   workflow_dispatch:
 
-# 배포 권한 설정
 permissions:
   contents: read
   pages: write
   id-token: write
-
-# 여러 배포가 동시에 실행될 경우, 이전 작업 취소 후 최신 작업만 진행
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -41,7 +32,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Vite의 기본 빌드 결과물 폴더인 'dist'를 지정합니다.
           path: dist
 
   deploy:
@@ -51,6 +41,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
