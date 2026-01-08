@@ -1,0 +1,7 @@
+{
+  "name": "오디오뷰-모바일앱",
+  "description": "접근성(Accessibility)을 최우선으로 고려한 이 디자인은 시각 및 청각 장애를 가진 사용자가 콘텐츠를 탐색하고 감상하는 데 있어 **'장벽 없는(Barrier-Free) 경험'**을 제공하는 데 초점을 맞춥니다.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
