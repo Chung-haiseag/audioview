@@ -5,10 +5,9 @@ import path from 'path'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    base: '/audioview/', // 이 줄이 가장 중요합니다!
+    base: '/audioview/', // 이 줄이 없으면 404 에러가 발생합니다!
     plugins: [react()],
     define: {
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
     },
     resolve: {
