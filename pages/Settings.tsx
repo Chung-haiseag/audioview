@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Toggle from '../components/Toggle';
-import { Glasses, Type, Palette, Ghost, Eye, ChevronRight, HelpCircle, Shield, FileText, MessageCircle, Info, PlusCircle, Mail, Phone } from 'lucide-react';
+import { Glasses, Type, Palette, Ghost, Eye, ChevronRight, HelpCircle, Shield, FileText, MessageCircle, Info, PlusCircle, Mail, Phone, MoveVertical, RefreshCw } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -15,18 +15,42 @@ const Settings: React.FC = () => {
   const [multiLang, setMultiLang] = useState(true);
 
   // CC Customization State
-  const [captionFontSize, setCaptionFontSize] = useState('medium'); // small, medium, large, xlarge
-  const [captionFontColor, setCaptionFontColor] = useState('#FFFFFF');
-  const [captionBgOpacity, setCaptionBgOpacity] = useState(0.5); // 0 to 1
+  const [captionFontSize, setCaptionFontSize] = useState(() => localStorage.getItem('captionFontSize') || 'medium');
+  const [captionFontColor, setCaptionFontColor] = useState(() => localStorage.getItem('captionFontColor') || '#FFFFFF');
+  const [captionBgOpacity, setCaptionBgOpacity] = useState(() => Number(localStorage.getItem('captionBgOpacity')) || 0.5);
+  const [captionPosition, setCaptionPosition] = useState(() => localStorage.getItem('captionPosition') || 'bottom'); 
 
   const [extendedRange, setExtendedRange] = useState(false);
   const [smartGlasses, setSmartGlasses] = useState(true);
 
+  // Persistence
+  useEffect(() => {
+    localStorage.setItem('captionFontSize', captionFontSize);
+    localStorage.setItem('captionFontColor', captionFontColor);
+    localStorage.setItem('captionBgOpacity', captionBgOpacity.toString());
+    localStorage.setItem('captionPosition', captionPosition);
+  }, [captionFontSize, captionFontColor, captionBgOpacity, captionPosition]);
+
+  // Position Preset Helper
+  const applyPositionPreset = (id: string) => {
+    setCaptionPosition(id);
+    let offset = 80; // default bottom
+    if (id === 'top') offset = 20;
+    else if (id === 'middle') offset = 50;
+    localStorage.setItem('captionVerticalOffset', offset.toString());
+  };
+
   const fontSizes = [
-    { id: 'small', label: '작게', scale: '0.8rem' },
-    { id: 'medium', label: '보통', scale: '1rem' },
-    { id: 'large', label: '크게', scale: '1.25rem' },
-    { id: 'xlarge', label: '매우 크게', scale: '1.5rem' },
+    { id: 'small', label: '작게', scale: '0.85rem' },
+    { id: 'medium', label: '보통', scale: '1.1rem' },
+    { id: 'large', label: '크게', scale: '1.4rem' },
+    { id: 'xlarge', label: '매우 크게', scale: '1.8rem' },
+  ];
+
+  const positions = [
+    { id: 'top', label: '상단' },
+    { id: 'middle', label: '중앙' },
+    { id: 'bottom', label: '하단' },
   ];
 
   const colors = [
@@ -159,27 +183,60 @@ const Settings: React.FC = () => {
             {/* 자막 스타일 설정 섹션 */}
             {accessibilityMaster && captions && (
               <section className="bg-[#1A1A1A] rounded-2xl p-5 animate-fadeIn border border-gray-800/50 shadow-lg">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="p-1.5 bg-[#E50914]/10 rounded-lg">
-                    <Type size={18} className="text-[#E50914]" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-[#E50914]/10 rounded-lg">
+                      <Type size={18} className="text-[#E50914]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white">자막 스타일 설정</h3>
                   </div>
-                  <h3 className="text-lg font-bold text-white">자막 스타일 설정</h3>
+                  <button 
+                    onClick={() => {
+                        localStorage.removeItem('captionVerticalOffset');
+                        applyPositionPreset('bottom');
+                    }} 
+                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+                  >
+                    <RefreshCw size={12} />
+                    <span>위치 초기화</span>
+                  </button>
                 </div>
 
-                <div className="mb-8 p-6 rounded-xl bg-black/40 border border-gray-800 flex flex-col items-center justify-center min-h-[120px] relative overflow-hidden">
+                <div className="mb-8 p-6 rounded-xl bg-black/40 border border-gray-800 flex flex-col items-center justify-center min-h-[160px] relative overflow-hidden">
                    <div className="absolute inset-0 opacity-20 pointer-events-none">
                       <img src="https://picsum.photos/seed/preview/400/200" alt="background preview" className="w-full h-full object-cover blur-[2px]" />
                    </div>
-                   <div 
-                      className="relative z-10 px-3 py-1.5 rounded transition-all duration-300 text-center font-bold"
-                      style={{ 
-                        fontSize: fontSizes.find(f => f.id === captionFontSize)?.scale,
-                        color: captionFontColor,
-                        backgroundColor: `rgba(0, 0, 0, ${captionBgOpacity})`
-                      }}
-                   >
-                      "안녕하세요, AudioView 자막 미리보기입니다."
+                   <div className={`relative z-10 w-full h-full flex flex-col transition-all duration-300 ${
+                     captionPosition === 'top' ? 'justify-start' : 
+                     captionPosition === 'middle' ? 'justify-center' : 'justify-end'
+                   }`}>
+                      <div 
+                          className="px-3 py-1.5 rounded transition-all duration-300 text-center font-bold mx-auto shadow-xl"
+                          style={{ 
+                            fontSize: fontSizes.find(f => f.id === captionFontSize)?.scale,
+                            color: captionFontColor,
+                            backgroundColor: `rgba(0, 0, 0, ${captionBgOpacity})`,
+                            maxWidth: '90%'
+                          }}
+                      >
+                          "자막 미리보기입니다."
+                      </div>
                    </div>
+                </div>
+
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3 text-sm font-bold text-gray-400">
+                     <MoveVertical size={14} />
+                     <span>위치 프리셋</span>
+                  </div>
+                  <div className="flex bg-[#2F2F2F] rounded-xl p-1">
+                    {positions.map((p) => (
+                      <button key={p.id} onClick={() => applyPositionPreset(p.id)} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${captionPosition === p.id ? 'bg-[#E50914] text-white shadow-lg' : 'text-gray-400'}`}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2 text-center">* 재생 화면에서 직접 드래그하여 위치를 조절할 수 있습니다.</p>
                 </div>
 
                 <div className="mb-6">
@@ -254,7 +311,7 @@ const Settings: React.FC = () => {
                 ))}
             </div>
             
-            {/* 제작 및 연락처 정보 영역 (좌측 정렬 수정됨) */}
+            {/* 제작 및 연락처 정보 영역 */}
             <div className="mt-8 p-6 bg-[#1A1A1A] rounded-2xl border border-gray-800/50 shadow-inner">
                 <div className="space-y-4 text-left">
                     <div className="pb-3 border-b border-gray-800">
