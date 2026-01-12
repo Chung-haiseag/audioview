@@ -31,7 +31,7 @@ const Settings: React.FC = () => {
     localStorage.setItem('captionPosition', captionPosition);
   }, [captionFontSize, captionFontColor, captionBgOpacity, captionPosition]);
 
-  // Position Preset Helper
+  // Position Preset Helper 추가
   const applyPositionPreset = (id: string) => {
     setCaptionPosition(id);
     let offset = 80; // default bottom
