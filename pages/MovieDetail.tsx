@@ -331,7 +331,7 @@ const MovieDetail: React.FC = () => {
      )
   }
 
-  // 3. 작품 선택 화면 (Selection State)
+  // 3. 작품 선택 화면 (Selection State)-추가
   return (
     <div className="relative w-full h-[calc(100vh-68px)] overflow-hidden bg-brand-dark text-white font-sans">
       <div className="absolute inset-0 z-0">
